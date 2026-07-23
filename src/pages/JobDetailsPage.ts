@@ -13,7 +13,6 @@ export class JobDetailsPage extends BasePage {
   // Locators
   private jobDetailTitle: Locator;
   private saveJobButton: Locator;
-  private applyJobButton: Locator;
   private jobDescription: Locator;
 
   constructor(page: Page) {
@@ -21,7 +20,6 @@ export class JobDetailsPage extends BasePage {
     
     this.jobDetailTitle = page.locator(SELECTORS.JOB_DETAIL_TITLE);
     this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
-    this.applyJobButton = page.locator('button:has-text("Apply")');
     this.jobDescription = page.locator('[data-testid="job-description"], .job-description');
   }
 

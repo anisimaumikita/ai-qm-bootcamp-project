@@ -17,9 +17,7 @@ export class JobsPage extends BasePage {
   // Locators for job exploration
   private exploreJobsButton: Locator;
   private searchJobTitleInput: Locator;
-  private postcodeInput: Locator;
   private searchJobsButton: Locator;
-  private jobListContainer: Locator;
   private firstJobItem: Locator;
   private jobTitle: Locator;
   private noResultsMessage: Locator;
@@ -40,12 +38,10 @@ export class JobsPage extends BasePage {
     // Initialize job search locators
     this.exploreJobsButton = page.locator(SELECTORS.EXPLORE_JOBS_BUTTON);
     this.searchJobTitleInput = page.locator(SELECTORS.SEARCH_JOB_TITLE_INPUT);
-    this.postcodeInput = page.locator(SELECTORS.POSTCODE_INPUT);
     this.searchJobsButton = page.locator(SELECTORS.SEARCH_JOBS_BUTTON);
-    this.jobListContainer = page.locator(SELECTORS.JOB_LIST);
     this.firstJobItem = page.locator(SELECTORS.FIRST_JOB_ITEM);
     this.jobTitle = page.locator(SELECTORS.JOB_TITLE);
-    this.noResultsMessage = page.locator(':text("0 jobs")', { exact: false });
+    this.noResultsMessage = page.locator(':text("0 jobs")');
     this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
     this.savedJobsBadge = page.locator(SELECTORS.SAVED_JOBS_BADGE);
     this.savedJobsTab = page.locator(SELECTORS.SAVED_JOBS_TAB);

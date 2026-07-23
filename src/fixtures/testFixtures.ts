@@ -12,10 +12,10 @@
  * - Code reusability
  */
 
-import { test as base } from '@playwright/test';
-import { HomePage } from './pages/HomePage';
-import { JobsPage } from './pages/JobsPage';
-import { JobDetailsPage } from './pages/JobDetailsPage';
+import { test as base, Page } from '@playwright/test';
+import { HomePage } from '../pages/HomePage';
+import { JobsPage } from '../pages/JobsPage';
+import { JobDetailsPage } from '../pages/JobDetailsPage';
 
 /**
  * Extend Playwright test with custom fixtures
@@ -28,17 +28,17 @@ type TestFixtures = {
 };
 
 export const test = base.extend<TestFixtures>({
-  homePage: async ({ page }, use) => {
+  homePage: async ({ page }: { page: Page }, use) => {
     const homePage = new HomePage(page);
     await use(homePage);
   },
 
-  jobsPage: async ({ page }, use) => {
+  jobsPage: async ({ page }: { page: Page }, use) => {
     const jobsPage = new JobsPage(page);
     await use(jobsPage);
   },
 
-  jobDetailsPage: async ({ page }, use) => {
+  jobDetailsPage: async ({ page }: { page: Page }, use) => {
     const jobDetailsPage = new JobDetailsPage(page);
     await use(jobDetailsPage);
   },

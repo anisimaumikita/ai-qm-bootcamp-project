@@ -16,7 +16,6 @@ interface Config {
 }
 
 const getConfig = (): Config => {
-  const environment = process.env.ENV || 'prod';
   const baseUrl = process.env.BASE_URL || 'https://www.ikea.com';
 
   const config: Config = {

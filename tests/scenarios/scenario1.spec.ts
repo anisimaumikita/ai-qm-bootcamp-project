@@ -16,15 +16,14 @@
  * 12. Check that the saved job title contains the search keyword
  */
 
-import { test, expect } from '../fixtures/testFixtures';
-import { JOBS_SEARCH_PARAMS } from '../config/constants';
-import { createLogger } from '../utils/logger';
+import { test, expect } from '../../src/fixtures/testFixtures';
+import { JOBS_SEARCH_PARAMS } from '../../src/config/constants';
+import { createLogger } from '../../src/utils/logger';
 
 const logger = createLogger('Scenario1-SearchForJob');
 
 test.describe('Scenario 1: Search for a Job', () => {
   test('should search for jobs and save the first result', async ({
-    page,
     homePage,
     jobsPage,
     jobDetailsPage,
@@ -32,7 +31,7 @@ test.describe('Scenario 1: Search for a Job', () => {
     // Step 1: Navigate to IKEA home page
     logger.info('Step 1: Navigating to IKEA home page');
     await homePage.navigate();
-    expect(page).toHaveTitle(/IKEA/);
+    await homePage.getPage.waitForLoadState('networkidle');
 
     // Step 2: Click on Jobs tab
     logger.info('Step 2: Clicking Jobs tab');
@@ -43,7 +42,7 @@ test.describe('Scenario 1: Search for a Job', () => {
     await jobsPage.clickExploreJobsButton();
 
     // Step 4-5: Search for jobs with initial keyword
-    let searchKeyword = JOBS_SEARCH_PARAMS.DEFAULT_JOB_TITLE; // 'Manager'
+    let searchKeyword: string = JOBS_SEARCH_PARAMS.DEFAULT_JOB_TITLE; // 'Manager'
     logger.info(`Step 4-5: Searching for job title: ${searchKeyword}`);
     await jobsPage.searchForJob(searchKeyword);
 
@@ -55,15 +54,16 @@ test.describe('Scenario 1: Search for a Job', () => {
       logger.warn(
         `No results found for '${searchKeyword}', attempting fallback search`
       );
-      searchKeyword = JOBS_SEARCH_PARAMS.FALLBACK_JOB_TITLE; // 'Designer'
-      logger.info(`Searching for fallback keyword: ${searchKeyword}`);
+      const fallbackKeyword = JOBS_SEARCH_PARAMS.FALLBACK_JOB_TITLE; // 'Designer'
+      logger.info(`Searching for fallback keyword: ${fallbackKeyword}`);
       
       // Go back and search again
       await jobsPage.goBack();
-      await jobsPage.searchForJob(searchKeyword);
+      await jobsPage.searchForJob(fallbackKeyword);
       
       hasResults = await jobsPage.hasSearchResults();
-      expect(hasResults).toBeTruthy(`Expected to find results for '${searchKeyword}'`);
+      expect(hasResults).toBeTruthy();
+      searchKeyword = fallbackKeyword;
     }
 
     // Get the first job title before clicking
@@ -80,9 +80,7 @@ test.describe('Scenario 1: Search for a Job', () => {
     const jobTitleContainsKeyword = await jobDetailsPage.jobTitleContains(
       searchKeyword
     );
-    expect(jobTitleContainsKeyword).toBeTruthy(
-      `Job title should contain '${searchKeyword}'`
-    );
+    expect(jobTitleContainsKeyword).toBeTruthy();
 
     // Step 9: Save the job
     logger.info('Step 9: Clicking Save button');

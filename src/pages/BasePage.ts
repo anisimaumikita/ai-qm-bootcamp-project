@@ -17,13 +17,22 @@
 import { Page, Locator } from '@playwright/test';
 import { createLogger } from '../utils/logger';
 
+type Logger = ReturnType<typeof createLogger>;
+
 export abstract class BasePage {
   protected page: Page;
-  protected logger;
+  protected logger: Logger;
 
   constructor(page: Page, pageName: string) {
     this.page = page;
     this.logger = createLogger(pageName);
+  }
+
+  /**
+   * Get the page instance (for use in tests)
+   */
+  get getPage(): Page {
+    return this.page;
   }
 
   /**

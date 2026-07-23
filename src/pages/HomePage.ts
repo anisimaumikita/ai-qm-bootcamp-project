@@ -12,7 +12,6 @@ import { URLS, SELECTORS } from '../config/constants';
 export class HomePage extends BasePage {
   // Locators
   private jobsTab: Locator;
-  private careersLink: Locator;
 
   constructor(page: Page) {
     super(page, 'HomePage');
@@ -20,7 +19,6 @@ export class HomePage extends BasePage {
     // Initialize locators - use page.locator() for better debugging
     // These use accessible selectors (role-based, text-based)
     this.jobsTab = page.locator(SELECTORS.JOBS_TAB);
-    this.careersLink = page.locator(SELECTORS.CAREERS_LINK);
   }
 
   /**
