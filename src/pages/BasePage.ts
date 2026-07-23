@@ -110,5 +110,7 @@ export abstract class BasePage {
     this.logger.info('Going back to previous page');
     await this.page.goBack();
     await this.page.waitForLoadState('networkidle');
+    // Give page time to fully settle after going back
+    await this.page.waitForTimeout(1000);
   }
 }

@@ -48,7 +48,8 @@ export class JobsPage extends BasePage {
     this.jobTitle = page.getByRole('heading').first();
     this.noResultsMessage = page.locator('text=/0\\s+results|no\\s+jobs/i');
     this.saveJobButton = page.getByLabel('Save Job');
-    this.savedJobsBadge = page.locator('[class*="saved"]').filter({ hasText: /\d+/ }).first();
+    // Saved jobs counter button shows as "Saved jobs (0)" or "Saved jobs (1)" etc.
+    this.savedJobsBadge = page.getByRole('button', { name: /saved\s+jobs\s*\(\d+\)/i });
     this.savedJobsTab = page.getByRole('button', { name: /saved\s+jobs/i });
 
     // Initialize subscription locators
@@ -178,7 +179,9 @@ export class JobsPage extends BasePage {
     try {
       await this.waitForElement(this.savedJobsBadge, 3000);
       const text = await this.getText(this.savedJobsBadge);
-      return parseInt(text, 10);
+      // Extract number from text like "Saved jobs (1)" -> 1
+      const match = text.match(/\((\d+)\)/);
+      return match ? parseInt(match[1], 10) : 0;
     } catch {
       this.logger.warn('Could not find saved jobs badge');
       return 0;
