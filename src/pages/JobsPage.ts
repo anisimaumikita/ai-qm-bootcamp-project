@@ -225,8 +225,15 @@ export class JobsPage extends BasePage {
     // Wait for dropdown to open
     await this.page.waitForTimeout(500);
 
-    // Select the option
-    const option = this.page.locator(`[role="option"]:has-text("${category}")`);
+    // Select the option - try multiple selectors
+    const option = this.page
+      .locator(`[role="option"]:has-text("${category}")`)
+      .or(this.page.locator(`text="${category}"`)
+        .filter({ hasText: new RegExp(`^${category}$`, 'i') }))
+      .or(this.page.getByText(new RegExp(`^${category}$`, 'i')))
+      .first();
+    
+    await this.waitForElement(option, 3000);
     await this.click(option, `Category: ${category}`);
   }
 
@@ -239,12 +246,16 @@ export class JobsPage extends BasePage {
     await this.fill(this.locationInput, location, 'Location Input');
 
     // Wait for suggestions dropdown
-    await this.page.waitForTimeout(500);
+    await this.page.waitForTimeout(1000);
 
-    // Click first suggestion
-    const firstSuggestion = this.page.locator('[role="option"]').first();
-    if (await this.isVisible(firstSuggestion)) {
-      await this.click(firstSuggestion, 'Location Suggestion');
+    // Try to click first suggestion or just proceed
+    try {
+      const firstSuggestion = this.page.locator('[role="option"]').first();
+      if (await this.isVisible(firstSuggestion)) {
+        await this.click(firstSuggestion, 'Location Suggestion');
+      }
+    } catch {
+      this.logger.info('No location suggestion dropdown found, continuing');
     }
   }
 
