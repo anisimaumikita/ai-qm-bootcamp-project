@@ -16,9 +16,12 @@ export class HomePage extends BasePage {
   constructor(page: Page) {
     super(page, 'HomePage');
 
-    // Use role-based locator with exact match (discovered via codegen)
-    // exact: true prevents matching mobile menu duplicates
-    this.jobsTab = page.getByRole('link', { name: 'Jobs', exact: true });
+    // Use role-based locator for Jobs - works on both desktop and mobile
+    // Try to find Jobs link with or without exact match (mobile may have different structure)
+    this.jobsTab = page
+      .getByRole('link', { name: 'Jobs', exact: true })
+      .or(page.getByRole('link', { name: /jobs/i }))
+      .first();
   }
 
   /**
@@ -33,9 +36,10 @@ export class HomePage extends BasePage {
    * This should navigate to the jobs page
    */
   async clickJobsTab(): Promise<void> {
-    await this.waitForElement(this.jobsTab);
+    // Use longer timeout for mobile navigation (15 seconds)
+    await this.waitForElement(this.jobsTab, 15000);
     await this.click(this.jobsTab, 'Jobs Tab');
-    await this.getPage.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('networkidle');
   }
 
   /**

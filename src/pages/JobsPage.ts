@@ -38,12 +38,12 @@ export class JobsPage extends BasePage {
     // Initialize job search locators - Selectors discovered via Playwright codegen
     this.exploreJobsButton = page.getByRole('link', { name: 'Explore available jobs' });
     this.searchJobTitleInput = page.getByRole('searchbox', { name: 'Keyword Search' });
-    // Use exact ID selector to avoid strict mode violation with role-based fallback
+    // Use exact ID selector to avoid strict mode violation
     this.searchJobsButton = page.locator('#search-submit-ea85388cbe');
-    // First job is a link with job title
+    // First job link in search results - filter job links by having job titles
     this.firstJobItem = page
-      .getByRole('link')
-      .filter({ hasText: /Manager|Designer|Developer/ })
+      .locator('a')
+      .filter({ hasText: /Manager|Designer|Developer|Accountant|Customer/ })
       .first();
     this.jobTitle = page.getByRole('heading').first();
     this.noResultsMessage = page.locator('text=/0\\s+results|no\\s+jobs/i');
@@ -117,19 +117,23 @@ export class JobsPage extends BasePage {
    * @returns true if results found, false if no results
    */
   async hasSearchResults(): Promise<boolean> {
-    // Wait for either results or no results message
+    // Wait for page to load after search
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000);
+
+    // Check if job links are visible (look for job result links, not the search input)
     try {
-      await this.page.waitForSelector('[data-testid="job-item"], :text("0 jobs")', {
-        timeout: JOBS_SEARCH_PARAMS.SEARCH_TIMEOUT,
-      });
+      const jobLinks = this.page
+        .locator('a')
+        .filter({ hasText: /Manager|Designer|Developer|Accountant|Customer/ });
+
+      // Wait for at least one result link to appear
+      await jobLinks.first().waitFor({ state: 'visible', timeout: 3000 });
+      return true;
     } catch {
-      // If timeout, assume no results
+      // If no job links found, return false
       return false;
     }
-
-    // Check if "0 jobs" message is visible
-    const isNoResults = await this.isVisible(this.noResultsMessage);
-    return !isNoResults;
   }
 
   /**
