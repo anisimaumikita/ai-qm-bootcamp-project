@@ -53,7 +53,7 @@ export class JobsPage extends BasePage {
     );
 
     // Initialize subscription locators
-    this.emailInput = page.getByType('email').or(page.getByPlaceholder(/email/i)).first();
+    this.emailInput = page.locator('input[type="email"]').or(page.getByPlaceholder(/email/i)).first();
     this.categorySelect = page.getByRole('combobox').or(page.locator('select')).first();
     this.locationInput = page
       .getByPlaceholder(/location|city|postcode/i)
