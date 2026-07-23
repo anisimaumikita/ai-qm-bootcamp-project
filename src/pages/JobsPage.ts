@@ -35,23 +35,32 @@ export class JobsPage extends BasePage {
   constructor(page: Page) {
     super(page, 'JobsPage');
 
-    // Initialize job search locators
-    this.exploreJobsButton = page.locator(SELECTORS.EXPLORE_JOBS_BUTTON);
-    this.searchJobTitleInput = page.locator(SELECTORS.SEARCH_JOB_TITLE_INPUT);
-    this.searchJobsButton = page.locator(SELECTORS.SEARCH_JOBS_BUTTON);
-    this.firstJobItem = page.locator(SELECTORS.FIRST_JOB_ITEM);
-    this.jobTitle = page.locator(SELECTORS.JOB_TITLE);
-    this.noResultsMessage = page.locator(':text("0 jobs")');
-    this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
-    this.savedJobsBadge = page.locator(SELECTORS.SAVED_JOBS_BADGE);
-    this.savedJobsTab = page.locator(SELECTORS.SAVED_JOBS_TAB);
+    // Initialize job search locators - Using role-based selectors (Playwright best practice)
+    // These are more stable and maintainable than CSS/XPath selectors
+    this.exploreJobsButton = page.getByRole('button', { name: /explore.*jobs/i });
+    this.searchJobTitleInput = page
+      .getByPlaceholder(/job title|search/i)
+      .or(page.getByLabel(/job title/i))
+      .first();
+    this.searchJobsButton = page.getByRole('button', { name: /search.*jobs/i });
+    this.firstJobItem = page.getByRole('listitem').or(page.locator('[data-testid*="job"]')).first();
+    this.jobTitle = page.getByRole('heading', { level: 3 }).or(page.locator('[data-testid="job-title"]'));
+    this.noResultsMessage = page.locator('text=/0\\s+jobs/');
+    this.saveJobButton = page.getByRole('button', { name: /save/i });
+    this.savedJobsBadge = page.locator('text=/\\d+/').filter({ has: page.locator('text=/saved/i') }).first();
+    this.savedJobsTab = page.getByRole('button', { name: /saved.*jobs/i }).or(
+      page.getByRole('tab', { name: /saved.*jobs/i })
+    );
 
     // Initialize subscription locators
-    this.emailInput = page.locator(SELECTORS.EMAIL_INPUT);
-    this.categorySelect = page.locator(SELECTORS.CATEGORY_SELECT);
-    this.locationInput = page.locator(SELECTORS.LOCATION_INPUT);
-    this.signUpButton = page.locator(SELECTORS.SIGN_UP_BUTTON);
-    this.confirmationMessage = page.locator(SELECTORS.CONFIRMATION_MESSAGE);
+    this.emailInput = page.getByType('email').or(page.getByPlaceholder(/email/i)).first();
+    this.categorySelect = page.getByRole('combobox').or(page.locator('select')).first();
+    this.locationInput = page
+      .getByPlaceholder(/location|city|postcode/i)
+      .or(page.getByLabel(/location/i))
+      .first();
+    this.signUpButton = page.getByRole('button', { name: /sign\s*up/i });
+    this.confirmationMessage = page.locator('[role="alert"], [role="status"]');
   }
 
   /**

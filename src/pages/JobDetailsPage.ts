@@ -7,7 +7,6 @@
 
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { SELECTORS } from '../config/constants';
 
 export class JobDetailsPage extends BasePage {
   // Locators
@@ -18,9 +17,10 @@ export class JobDetailsPage extends BasePage {
   constructor(page: Page) {
     super(page, 'JobDetailsPage');
 
-    this.jobDetailTitle = page.locator(SELECTORS.JOB_DETAIL_TITLE);
-    this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
-    this.jobDescription = page.locator('[data-testid="job-description"], .job-description');
+    // Use role-based selectors for stability and accessibility
+    this.jobDetailTitle = page.getByRole('heading', { level: 1 });
+    this.saveJobButton = page.getByRole('button', { name: /save/i });
+    this.jobDescription = page.locator('[data-testid="job-description"], main, [role="article"]').first();
   }
 
   /**

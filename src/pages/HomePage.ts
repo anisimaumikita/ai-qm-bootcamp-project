@@ -7,7 +7,7 @@
 
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { URLS, SELECTORS } from '../config/constants';
+import { URLS } from '../config/constants';
 
 export class HomePage extends BasePage {
   // Locators
@@ -16,9 +16,10 @@ export class HomePage extends BasePage {
   constructor(page: Page) {
     super(page, 'HomePage');
 
-    // Initialize locators - use page.locator() for better debugging
-    // These use accessible selectors (role-based, text-based)
-    this.jobsTab = page.locator(SELECTORS.JOBS_TAB);
+    // Use role-based locator (Playwright recommended best practice)
+    // getByRole is more stable than CSS selectors and handles both desktop/mobile
+    // .first() ensures we get the primary navigation, not mobile duplicate
+    this.jobsTab = page.getByRole('link', { name: /jobs/i }).first();
   }
 
   /**
