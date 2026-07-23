@@ -19,7 +19,8 @@ export class JobDetailsPage extends BasePage {
 
     // Use role-based selectors - discovered via codegen
     this.jobDetailTitle = page.getByRole('heading').first();
-    this.saveJobButton = page.getByLabel('Save Job');
+    // Use .first() to handle strict mode - there are 2 Save buttons on the page
+    this.saveJobButton = page.getByLabel('Save Job').first();
     this.jobDescription = page.locator('section').first();
   }
 

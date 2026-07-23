@@ -103,8 +103,14 @@ export class JobsPage extends BasePage {
    * @param jobTitle Job title to search for
    */
   async searchForJob(jobTitle: string): Promise<void> {
-    await this.waitForElement(this.searchJobTitleInput);
+    // Ensure input is visible and ready
+    await this.waitForElement(this.searchJobTitleInput, 10000);
+    
+    // Clear any existing text and enter new search term
+    await this.clear(this.searchJobTitleInput, 'Job Title Search Input');
     await this.fill(this.searchJobTitleInput, jobTitle, 'Job Title Search Input');
+    
+    // Click search and wait for results
     await this.click(this.searchJobsButton, 'Search Jobs Button');
 
     // Wait for search results to load
