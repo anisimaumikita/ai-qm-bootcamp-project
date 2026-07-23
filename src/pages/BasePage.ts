@@ -1,9 +1,9 @@
 /**
  * Base Page Object
- * 
+ *
  * Parent class for all page objects.
  * Provides common methods and ensures consistent behavior.
- * 
+ *
  * KEY PRINCIPLE:
  * - Page objects should ONLY contain:
  *   1. Locator definitions
@@ -17,13 +17,22 @@
 import { Page, Locator } from '@playwright/test';
 import { createLogger } from '../utils/logger';
 
+type Logger = ReturnType<typeof createLogger>;
+
 export abstract class BasePage {
   protected page: Page;
-  protected logger;
+  protected logger: Logger;
 
   constructor(page: Page, pageName: string) {
     this.page = page;
     this.logger = createLogger(pageName);
+  }
+
+  /**
+   * Get the page instance (for use in tests)
+   */
+  get getPage(): Page {
+    return this.page;
   }
 
   /**
@@ -82,7 +91,7 @@ export abstract class BasePage {
    * @returns The text content
    */
   async getText(locator: Locator): Promise<string> {
-    return await locator.textContent() || '';
+    return (await locator.textContent()) || '';
   }
 
   /**
@@ -101,5 +110,7 @@ export abstract class BasePage {
     this.logger.info('Going back to previous page');
     await this.page.goBack();
     await this.page.waitForLoadState('networkidle');
+    // Give page time to fully settle after going back
+    await this.page.waitForTimeout(1000);
   }
 }

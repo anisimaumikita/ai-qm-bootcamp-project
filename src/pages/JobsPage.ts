@@ -1,9 +1,9 @@
 /**
  * Jobs Page Object
- * 
+ *
  * Represents the IKEA jobs/careers page.
  * Handles job search, filtering, and navigation.
- * 
+ *
  * NOTE: The actual selectors will need adjustment based on
  * real website structure. These are role-based and data-testid
  * based selectors which are more maintainable and stable.
@@ -17,9 +17,7 @@ export class JobsPage extends BasePage {
   // Locators for job exploration
   private exploreJobsButton: Locator;
   private searchJobTitleInput: Locator;
-  private postcodeInput: Locator;
   private searchJobsButton: Locator;
-  private jobListContainer: Locator;
   private firstJobItem: Locator;
   private jobTitle: Locator;
   private noResultsMessage: Locator;
@@ -36,26 +34,33 @@ export class JobsPage extends BasePage {
 
   constructor(page: Page) {
     super(page, 'JobsPage');
-    
-    // Initialize job search locators
-    this.exploreJobsButton = page.locator(SELECTORS.EXPLORE_JOBS_BUTTON);
-    this.searchJobTitleInput = page.locator(SELECTORS.SEARCH_JOB_TITLE_INPUT);
-    this.postcodeInput = page.locator(SELECTORS.POSTCODE_INPUT);
-    this.searchJobsButton = page.locator(SELECTORS.SEARCH_JOBS_BUTTON);
-    this.jobListContainer = page.locator(SELECTORS.JOB_LIST);
-    this.firstJobItem = page.locator(SELECTORS.FIRST_JOB_ITEM);
-    this.jobTitle = page.locator(SELECTORS.JOB_TITLE);
-    this.noResultsMessage = page.locator(':text("0 jobs")', { exact: false });
-    this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
-    this.savedJobsBadge = page.locator(SELECTORS.SAVED_JOBS_BADGE);
-    this.savedJobsTab = page.locator(SELECTORS.SAVED_JOBS_TAB);
+
+    // Initialize job search locators - Selectors discovered via Playwright codegen
+    this.exploreJobsButton = page.getByRole('link', { name: 'Explore available jobs' });
+    this.searchJobTitleInput = page.getByRole('searchbox', { name: 'Keyword Search' });
+    // Use exact ID selector to avoid strict mode violation
+    this.searchJobsButton = page.locator('#search-submit-ea85388cbe');
+    // First job link in search results - filter job links by having job titles
+    this.firstJobItem = page
+      .locator('a')
+      .filter({ hasText: /Manager|Designer|Developer|Accountant|Customer/ })
+      .first();
+    this.jobTitle = page.getByRole('heading').first();
+    this.noResultsMessage = page.locator('text=/0\\s+results|no\\s+jobs/i');
+    this.saveJobButton = page.getByLabel('Save Job');
+    // Saved jobs counter button shows as "Saved jobs (0)" or "Saved jobs (1)" etc.
+    this.savedJobsBadge = page.getByRole('button', { name: /saved\s+jobs\s*\(\d+\)/i });
+    this.savedJobsTab = page.getByRole('button', { name: /saved\s+jobs/i });
 
     // Initialize subscription locators
-    this.emailInput = page.locator(SELECTORS.EMAIL_INPUT);
-    this.categorySelect = page.locator(SELECTORS.CATEGORY_SELECT);
-    this.locationInput = page.locator(SELECTORS.LOCATION_INPUT);
-    this.signUpButton = page.locator(SELECTORS.SIGN_UP_BUTTON);
-    this.confirmationMessage = page.locator(SELECTORS.CONFIRMATION_MESSAGE);
+    this.emailInput = page.locator('input[type="email"]').or(page.getByPlaceholder(/email/i)).first();
+    this.categorySelect = page.getByRole('combobox').or(page.locator('select')).first();
+    this.locationInput = page
+      .getByPlaceholder(/location|city|state|zip/i)
+      .or(page.getByLabel(/location/i))
+      .first();
+    this.signUpButton = page.getByRole('button', { name: /subscribe|sign\s*up/i });
+    this.confirmationMessage = page.locator('[role="alert"], [role="status"]');
   }
 
   /**
@@ -63,15 +68,35 @@ export class JobsPage extends BasePage {
    */
   async navigate(): Promise<void> {
     await this.goto(URLS.JOBS);
+    // Handle cookie consent modal if it appears
+    await this.dismissCookieConsent();
+  }
+
+  /**
+   * Dismiss cookie consent modal if present
+   */
+  private async dismissCookieConsent(): Promise<void> {
+    try {
+      const acceptButton = this.page.getByRole('button', { name: 'Accept' });
+      if (await acceptButton.isVisible({ timeout: 2000 })) {
+        await this.click(acceptButton, 'Accept Cookies');
+        await this.page.waitForTimeout(500);
+      }
+    } catch {
+      // Cookie consent not present, continue
+      this.logger.debug('No cookie consent modal found');
+    }
   }
 
   /**
    * Click "Explore available jobs" button
    */
   async clickExploreJobsButton(): Promise<void> {
-    await this.waitForElement(this.exploreJobsButton);
+    await this.waitForElement(this.exploreJobsButton, 10000); // Longer timeout for page load
     await this.click(this.exploreJobsButton, 'Explore available jobs button');
     await this.page.waitForLoadState('networkidle');
+    // Handle cookie modal if it appears after navigation
+    await this.dismissCookieConsent();
   }
 
   /**
@@ -79,10 +104,16 @@ export class JobsPage extends BasePage {
    * @param jobTitle Job title to search for
    */
   async searchForJob(jobTitle: string): Promise<void> {
-    await this.waitForElement(this.searchJobTitleInput);
-    await this.fill(this.searchJobTitleInput, jobTitle, 'Job Title Search Input');
-    await this.click(this.searchJobsButton, 'Search Jobs Button');
+    // Ensure input is visible and ready
+    await this.waitForElement(this.searchJobTitleInput, 10000);
     
+    // Clear any existing text and enter new search term
+    await this.clear(this.searchJobTitleInput, 'Job Title Search Input');
+    await this.fill(this.searchJobTitleInput, jobTitle, 'Job Title Search Input');
+    
+    // Click search and wait for results
+    await this.click(this.searchJobsButton, 'Search Jobs Button');
+
     // Wait for search results to load
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(JOBS_SEARCH_PARAMS.SEARCH_TIMEOUT);
@@ -93,20 +124,23 @@ export class JobsPage extends BasePage {
    * @returns true if results found, false if no results
    */
   async hasSearchResults(): Promise<boolean> {
-    // Wait for either results or no results message
+    // Wait for page to load after search
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000);
+
+    // Check if job links are visible (look for job result links, not the search input)
     try {
-      await this.page.waitForSelector(
-        '[data-testid="job-item"], :text("0 jobs")',
-        { timeout: JOBS_SEARCH_PARAMS.SEARCH_TIMEOUT }
-      );
+      const jobLinks = this.page
+        .locator('a')
+        .filter({ hasText: /Manager|Designer|Developer|Accountant|Customer/ });
+
+      // Wait for at least one result link to appear
+      await jobLinks.first().waitFor({ state: 'visible', timeout: 3000 });
+      return true;
     } catch {
-      // If timeout, assume no results
+      // If no job links found, return false
       return false;
     }
-
-    // Check if "0 jobs" message is visible
-    const isNoResults = await this.isVisible(this.noResultsMessage);
-    return !isNoResults;
   }
 
   /**
@@ -132,7 +166,7 @@ export class JobsPage extends BasePage {
   async saveCurrentJob(): Promise<void> {
     await this.waitForElement(this.saveJobButton);
     await this.click(this.saveJobButton, 'Save Job Button');
-    
+
     // Wait for the save action to complete
     await this.page.waitForLoadState('networkidle');
   }
@@ -145,7 +179,9 @@ export class JobsPage extends BasePage {
     try {
       await this.waitForElement(this.savedJobsBadge, 3000);
       const text = await this.getText(this.savedJobsBadge);
-      return parseInt(text, 10);
+      // Extract number from text like "Saved jobs (1)" -> 1
+      const match = text.match(/\((\d+)\)/);
+      return match ? parseInt(match[1], 10) : 0;
     } catch {
       this.logger.warn('Could not find saved jobs badge');
       return 0;
@@ -185,12 +221,19 @@ export class JobsPage extends BasePage {
   async selectCategory(category: string): Promise<void> {
     await this.waitForElement(this.categorySelect);
     await this.click(this.categorySelect, 'Category Select');
-    
+
     // Wait for dropdown to open
     await this.page.waitForTimeout(500);
+
+    // Select the option - try multiple selectors
+    const option = this.page
+      .locator(`[role="option"]:has-text("${category}")`)
+      .or(this.page.locator(`text="${category}"`)
+        .filter({ hasText: new RegExp(`^${category}$`, 'i') }))
+      .or(this.page.getByText(new RegExp(`^${category}$`, 'i')))
+      .first();
     
-    // Select the option
-    const option = this.page.locator(`[role="option"]:has-text("${category}")`);
+    await this.waitForElement(option, 3000);
     await this.click(option, `Category: ${category}`);
   }
 
@@ -201,14 +244,18 @@ export class JobsPage extends BasePage {
   async enterLocation(location: string): Promise<void> {
     await this.waitForElement(this.locationInput);
     await this.fill(this.locationInput, location, 'Location Input');
-    
+
     // Wait for suggestions dropdown
-    await this.page.waitForTimeout(500);
-    
-    // Click first suggestion
-    const firstSuggestion = this.page.locator('[role="option"]').first();
-    if (await this.isVisible(firstSuggestion)) {
-      await this.click(firstSuggestion, 'Location Suggestion');
+    await this.page.waitForTimeout(1000);
+
+    // Try to click first suggestion or just proceed
+    try {
+      const firstSuggestion = this.page.locator('[role="option"]').first();
+      if (await this.isVisible(firstSuggestion)) {
+        await this.click(firstSuggestion, 'Location Suggestion');
+      }
+    } catch {
+      this.logger.info('No location suggestion dropdown found, continuing');
     }
   }
 

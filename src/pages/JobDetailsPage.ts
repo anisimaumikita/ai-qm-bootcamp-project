@@ -1,28 +1,27 @@
 /**
  * Job Details Page Object
- * 
+ *
  * Represents the job details/job posting page.
  * Handles viewing and saving individual job details.
  */
 
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
-import { SELECTORS } from '../config/constants';
 
 export class JobDetailsPage extends BasePage {
   // Locators
   private jobDetailTitle: Locator;
   private saveJobButton: Locator;
-  private applyJobButton: Locator;
   private jobDescription: Locator;
 
   constructor(page: Page) {
     super(page, 'JobDetailsPage');
-    
-    this.jobDetailTitle = page.locator(SELECTORS.JOB_DETAIL_TITLE);
-    this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
-    this.applyJobButton = page.locator('button:has-text("Apply")');
-    this.jobDescription = page.locator('[data-testid="job-description"], .job-description');
+
+    // Use role-based selectors - discovered via codegen
+    this.jobDetailTitle = page.getByRole('heading').first();
+    // Use .first() to handle strict mode - there are 2 Save buttons on the page
+    this.saveJobButton = page.getByLabel('Save Job').first();
+    this.jobDescription = page.locator('section').first();
   }
 
   /**

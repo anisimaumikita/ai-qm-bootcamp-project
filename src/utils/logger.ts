@@ -1,6 +1,6 @@
 /**
  * Logger Utility
- * 
+ *
  * Provides structured logging for test execution.
  * Helps with debugging and test result analysis.
  */

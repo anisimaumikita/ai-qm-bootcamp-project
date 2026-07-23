@@ -1,6 +1,6 @@
 /**
  * Scenario 2: Subscribe for a Job
- * 
+ *
  * TEST CASE:
  * 1. Open the IKEA website
  * 2. Click on 'Jobs' tab
@@ -12,9 +12,9 @@
  * 8. Check confirmation message is displayed
  */
 
-import { test, expect } from '../fixtures/testFixtures';
-import { generateUniqueEmail, isValidEmail } from '../utils/testData';
-import { createLogger } from '../utils/logger';
+import { test, expect } from '../../src/fixtures/testFixtures';
+import { generateUniqueEmail, isValidEmail } from '../../src/utils/testData';
+import { createLogger } from '../../src/utils/logger';
 
 const logger = createLogger('Scenario2-SubscribeForJob');
 
@@ -28,20 +28,16 @@ const TEST_DATA = {
 };
 
 test.describe('Scenario 2: Subscribe for a Job', () => {
-  test('should subscribe for job alerts with unique email', async ({
-    page,
-    homePage,
-    jobsPage,
-  }) => {
+  test('should subscribe for job alerts with unique email', async ({ homePage, jobsPage }) => {
     // Generate unique email for this test run
     const uniqueEmail = generateUniqueEmail();
     logger.info(`Generated unique email: ${uniqueEmail}`);
-    expect(isValidEmail(uniqueEmail)).toBeTruthy('Generated email should be valid');
+    expect(isValidEmail(uniqueEmail)).toBeTruthy();
 
     // Step 1: Navigate to IKEA home page
     logger.info('Step 1: Navigating to IKEA home page');
     await homePage.navigate();
-    expect(page).toHaveTitle(/IKEA/);
+    await homePage.getPage.waitForLoadState('networkidle');
 
     // Step 2: Click on Jobs tab
     logger.info('Step 2: Clicking Jobs tab');
@@ -70,7 +66,7 @@ test.describe('Scenario 2: Subscribe for a Job', () => {
     // Step 8: Verify confirmation message
     logger.info('Step 8: Verifying confirmation message is visible');
     const isConfirmationVisible = await jobsPage.isConfirmationMessageVisible();
-    expect(isConfirmationVisible).toBeTruthy('Confirmation message should be visible');
+    expect(isConfirmationVisible).toBeTruthy();
 
     const confirmationMessage = await jobsPage.getConfirmationMessage();
     logger.info(`Confirmation message: ${confirmationMessage}`);

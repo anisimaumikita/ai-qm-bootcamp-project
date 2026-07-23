@@ -1,6 +1,6 @@
 /**
  * Test Data Utilities
- * 
+ *
  * Generates and manages test data consistently.
  * Prevents hardcoded test data throughout tests.
  */
@@ -38,23 +38,22 @@ export const waitForCondition = async (
   interval: number = 500
 ): Promise<void> => {
   const startTime = Date.now();
-  
-  while (true) {
+  let lastError: unknown;
+
+  // eslint-disable-next-line no-constant-condition
+  while (Date.now() - startTime <= timeout) {
     try {
       const result = await condition();
       if (result) {
         return;
       }
-    } catch {
+    } catch (error) {
+      lastError = error;
       // Continue polling
     }
 
-    if (Date.now() - startTime > timeout) {
-      throw new Error(
-        `Condition not met within ${timeout}ms timeout`
-      );
-    }
-
-    await new Promise(resolve => setTimeout(resolve, interval));
+    await new Promise((resolve) => setTimeout(resolve, interval));
   }
+
+  throw new Error(`Condition not met within ${timeout}ms timeout. Last error: ${lastError}`);
 };
