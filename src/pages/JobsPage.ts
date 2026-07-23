@@ -38,9 +38,8 @@ export class JobsPage extends BasePage {
     // Initialize job search locators - Selectors discovered via Playwright codegen
     this.exploreJobsButton = page.getByRole('link', { name: 'Explore available jobs' });
     this.searchJobTitleInput = page.getByRole('searchbox', { name: 'Keyword Search' });
-    this.searchJobsButton = page
-      .locator('#search-submit-ea8538cbe')
-      .or(page.getByRole('button', { name: /search/i }));
+    // Use exact ID selector to avoid strict mode violation with role-based fallback
+    this.searchJobsButton = page.locator('#search-submit-ea85388cbe');
     // First job is a link with job title
     this.firstJobItem = page
       .getByRole('link')
