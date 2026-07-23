@@ -82,6 +82,10 @@ test.describe('Scenario 1: Search for a Job', () => {
     logger.info('Step 9: Clicking Save button');
     await jobDetailsPage.saveJob();
 
+    // Step 9b: Navigate back to jobs page
+    logger.info('Step 9b: Navigating back to jobs page');
+    await jobsPage.goBack();
+
     // Step 10: Verify saved jobs count
     logger.info('Step 10: Verifying saved jobs count is 1');
     const savedCount = await jobsPage.getSavedJobsCount();
