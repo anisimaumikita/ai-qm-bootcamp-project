@@ -17,10 +17,10 @@ export class JobDetailsPage extends BasePage {
   constructor(page: Page) {
     super(page, 'JobDetailsPage');
 
-    // Use role-based selectors for stability and accessibility
-    this.jobDetailTitle = page.getByRole('heading', { level: 1 });
-    this.saveJobButton = page.getByRole('button', { name: /save/i });
-    this.jobDescription = page.locator('[data-testid="job-description"], main, [role="article"]').first();
+    // Use role-based selectors - discovered via codegen
+    this.jobDetailTitle = page.getByRole('heading').first();
+    this.saveJobButton = page.getByLabel('Save Job');
+    this.jobDescription = page.locator('section').first();
   }
 
   /**

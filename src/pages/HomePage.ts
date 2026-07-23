@@ -16,10 +16,9 @@ export class HomePage extends BasePage {
   constructor(page: Page) {
     super(page, 'HomePage');
 
-    // Use role-based locator (Playwright recommended best practice)
-    // getByRole is more stable than CSS selectors and handles both desktop/mobile
-    // .first() ensures we get the primary navigation, not mobile duplicate
-    this.jobsTab = page.getByRole('link', { name: /jobs/i }).first();
+    // Use role-based locator with exact match (discovered via codegen)
+    // exact: true prevents matching mobile menu duplicates
+    this.jobsTab = page.getByRole('link', { name: 'Jobs', exact: true });
   }
 
   /**
@@ -36,7 +35,7 @@ export class HomePage extends BasePage {
   async clickJobsTab(): Promise<void> {
     await this.waitForElement(this.jobsTab);
     await this.click(this.jobsTab, 'Jobs Tab');
-    await this.page.waitForLoadState('networkidle');
+    await this.getPage.waitForLoadState('networkidle');
   }
 
   /**

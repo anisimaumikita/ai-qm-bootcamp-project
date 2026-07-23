@@ -35,31 +35,31 @@ export class JobsPage extends BasePage {
   constructor(page: Page) {
     super(page, 'JobsPage');
 
-    // Initialize job search locators - Using role-based selectors (Playwright best practice)
-    // These are more stable and maintainable than CSS/XPath selectors
-    this.exploreJobsButton = page.getByRole('button', { name: /explore.*jobs/i });
-    this.searchJobTitleInput = page
-      .getByPlaceholder(/job title|search/i)
-      .or(page.getByLabel(/job title/i))
+    // Initialize job search locators - Selectors discovered via Playwright codegen
+    this.exploreJobsButton = page.getByRole('link', { name: 'Explore available jobs' });
+    this.searchJobTitleInput = page.getByRole('searchbox', { name: 'Keyword Search' });
+    this.searchJobsButton = page
+      .locator('#search-submit-ea8538cbe')
+      .or(page.getByRole('button', { name: /search/i }));
+    // First job is a link with job title
+    this.firstJobItem = page
+      .getByRole('link')
+      .filter({ hasText: /Manager|Designer|Developer/ })
       .first();
-    this.searchJobsButton = page.getByRole('button', { name: /search.*jobs/i });
-    this.firstJobItem = page.getByRole('listitem').or(page.locator('[data-testid*="job"]')).first();
-    this.jobTitle = page.getByRole('heading', { level: 3 }).or(page.locator('[data-testid="job-title"]'));
-    this.noResultsMessage = page.locator('text=/0\\s+jobs/');
-    this.saveJobButton = page.getByRole('button', { name: /save/i });
-    this.savedJobsBadge = page.locator('text=/\\d+/').filter({ has: page.locator('text=/saved/i') }).first();
-    this.savedJobsTab = page.getByRole('button', { name: /saved.*jobs/i }).or(
-      page.getByRole('tab', { name: /saved.*jobs/i })
-    );
+    this.jobTitle = page.getByRole('heading').first();
+    this.noResultsMessage = page.locator('text=/0\\s+results|no\\s+jobs/i');
+    this.saveJobButton = page.getByLabel('Save Job');
+    this.savedJobsBadge = page.locator('[class*="saved"]').filter({ hasText: /\d+/ }).first();
+    this.savedJobsTab = page.getByRole('button', { name: /saved\s+jobs/i });
 
     // Initialize subscription locators
     this.emailInput = page.locator('input[type="email"]').or(page.getByPlaceholder(/email/i)).first();
     this.categorySelect = page.getByRole('combobox').or(page.locator('select')).first();
     this.locationInput = page
-      .getByPlaceholder(/location|city|postcode/i)
+      .getByPlaceholder(/location|city|state|zip/i)
       .or(page.getByLabel(/location/i))
       .first();
-    this.signUpButton = page.getByRole('button', { name: /sign\s*up/i });
+    this.signUpButton = page.getByRole('button', { name: /subscribe|sign\s*up/i });
     this.confirmationMessage = page.locator('[role="alert"], [role="status"]');
   }
 
@@ -68,15 +68,35 @@ export class JobsPage extends BasePage {
    */
   async navigate(): Promise<void> {
     await this.goto(URLS.JOBS);
+    // Handle cookie consent modal if it appears
+    await this.dismissCookieConsent();
+  }
+
+  /**
+   * Dismiss cookie consent modal if present
+   */
+  private async dismissCookieConsent(): Promise<void> {
+    try {
+      const acceptButton = this.page.getByRole('button', { name: 'Accept' });
+      if (await acceptButton.isVisible({ timeout: 2000 })) {
+        await this.click(acceptButton, 'Accept Cookies');
+        await this.page.waitForTimeout(500);
+      }
+    } catch {
+      // Cookie consent not present, continue
+      this.logger.debug('No cookie consent modal found');
+    }
   }
 
   /**
    * Click "Explore available jobs" button
    */
   async clickExploreJobsButton(): Promise<void> {
-    await this.waitForElement(this.exploreJobsButton);
+    await this.waitForElement(this.exploreJobsButton, 10000); // Longer timeout for page load
     await this.click(this.exploreJobsButton, 'Explore available jobs button');
     await this.page.waitForLoadState('networkidle');
+    // Handle cookie modal if it appears after navigation
+    await this.dismissCookieConsent();
   }
 
   /**
