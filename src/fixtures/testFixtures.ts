@@ -1,9 +1,9 @@
 /**
  * Playwright Test Fixtures
- * 
+ *
  * Provides initialized page objects to all tests.
  * Ensures consistent state and cleanup.
- * 
+ *
  * BEST PRACTICE:
  * Using fixtures helps with:
  * - DI (Dependency Injection) of page objects

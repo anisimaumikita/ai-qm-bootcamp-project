@@ -1,6 +1,6 @@
 /**
  * Home Page Object
- * 
+ *
  * Represents the IKEA home page.
  * Provides methods to interact with home page elements.
  */
@@ -15,7 +15,7 @@ export class HomePage extends BasePage {
 
   constructor(page: Page) {
     super(page, 'HomePage');
-    
+
     // Initialize locators - use page.locator() for better debugging
     // These use accessible selectors (role-based, text-based)
     this.jobsTab = page.locator(SELECTORS.JOBS_TAB);

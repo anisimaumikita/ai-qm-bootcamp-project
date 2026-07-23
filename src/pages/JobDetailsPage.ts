@@ -1,6 +1,6 @@
 /**
  * Job Details Page Object
- * 
+ *
  * Represents the job details/job posting page.
  * Handles viewing and saving individual job details.
  */
@@ -17,7 +17,7 @@ export class JobDetailsPage extends BasePage {
 
   constructor(page: Page) {
     super(page, 'JobDetailsPage');
-    
+
     this.jobDetailTitle = page.locator(SELECTORS.JOB_DETAIL_TITLE);
     this.saveJobButton = page.locator(SELECTORS.SAVE_JOB_BUTTON);
     this.jobDescription = page.locator('[data-testid="job-description"], .job-description');

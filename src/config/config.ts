@@ -1,6 +1,6 @@
 /**
  * Application Configuration
- * 
+ *
  * Centralizes all environment-specific and application configuration.
  * Prevents hardcoded values throughout the codebase.
  */
@@ -23,8 +23,8 @@ const getConfig = (): Config => {
     browsers: ['chromium', 'firefox', 'webkit'],
     timeouts: {
       navigation: 30000, // 30 seconds
-      action: 15000,     // 15 seconds
-      expect: 5000,      // 5 seconds
+      action: 15000, // 15 seconds
+      expect: 5000, // 5 seconds
     },
   };
 

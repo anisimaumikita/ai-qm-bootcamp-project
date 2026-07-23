@@ -1,9 +1,9 @@
 /**
  * Base Page Object
- * 
+ *
  * Parent class for all page objects.
  * Provides common methods and ensures consistent behavior.
- * 
+ *
  * KEY PRINCIPLE:
  * - Page objects should ONLY contain:
  *   1. Locator definitions
@@ -91,7 +91,7 @@ export abstract class BasePage {
    * @returns The text content
    */
   async getText(locator: Locator): Promise<string> {
-    return await locator.textContent() || '';
+    return (await locator.textContent()) || '';
   }
 
   /**

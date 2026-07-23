@@ -1,6 +1,6 @@
 /**
  * Scenario 2: Subscribe for a Job
- * 
+ *
  * TEST CASE:
  * 1. Open the IKEA website
  * 2. Click on 'Jobs' tab
@@ -28,10 +28,7 @@ const TEST_DATA = {
 };
 
 test.describe('Scenario 2: Subscribe for a Job', () => {
-  test('should subscribe for job alerts with unique email', async ({
-    homePage,
-    jobsPage,
-  }) => {
+  test('should subscribe for job alerts with unique email', async ({ homePage, jobsPage }) => {
     // Generate unique email for this test run
     const uniqueEmail = generateUniqueEmail();
     logger.info(`Generated unique email: ${uniqueEmail}`);

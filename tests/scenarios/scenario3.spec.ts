@@ -1,6 +1,6 @@
 /**
  * Scenario 3: Custom Test Case (To Be Designed)
- * 
+ *
  * This is a placeholder for Scenario 3.
  * Following the architecture, we will:
  * 1. Design the test case

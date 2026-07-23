@@ -1,9 +1,9 @@
 /**
  * Jobs Page Object
- * 
+ *
  * Represents the IKEA jobs/careers page.
  * Handles job search, filtering, and navigation.
- * 
+ *
  * NOTE: The actual selectors will need adjustment based on
  * real website structure. These are role-based and data-testid
  * based selectors which are more maintainable and stable.
@@ -34,7 +34,7 @@ export class JobsPage extends BasePage {
 
   constructor(page: Page) {
     super(page, 'JobsPage');
-    
+
     // Initialize job search locators
     this.exploreJobsButton = page.locator(SELECTORS.EXPLORE_JOBS_BUTTON);
     this.searchJobTitleInput = page.locator(SELECTORS.SEARCH_JOB_TITLE_INPUT);
@@ -78,7 +78,7 @@ export class JobsPage extends BasePage {
     await this.waitForElement(this.searchJobTitleInput);
     await this.fill(this.searchJobTitleInput, jobTitle, 'Job Title Search Input');
     await this.click(this.searchJobsButton, 'Search Jobs Button');
-    
+
     // Wait for search results to load
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(JOBS_SEARCH_PARAMS.SEARCH_TIMEOUT);
@@ -91,10 +91,9 @@ export class JobsPage extends BasePage {
   async hasSearchResults(): Promise<boolean> {
     // Wait for either results or no results message
     try {
-      await this.page.waitForSelector(
-        '[data-testid="job-item"], :text("0 jobs")',
-        { timeout: JOBS_SEARCH_PARAMS.SEARCH_TIMEOUT }
-      );
+      await this.page.waitForSelector('[data-testid="job-item"], :text("0 jobs")', {
+        timeout: JOBS_SEARCH_PARAMS.SEARCH_TIMEOUT,
+      });
     } catch {
       // If timeout, assume no results
       return false;
@@ -128,7 +127,7 @@ export class JobsPage extends BasePage {
   async saveCurrentJob(): Promise<void> {
     await this.waitForElement(this.saveJobButton);
     await this.click(this.saveJobButton, 'Save Job Button');
-    
+
     // Wait for the save action to complete
     await this.page.waitForLoadState('networkidle');
   }
@@ -181,10 +180,10 @@ export class JobsPage extends BasePage {
   async selectCategory(category: string): Promise<void> {
     await this.waitForElement(this.categorySelect);
     await this.click(this.categorySelect, 'Category Select');
-    
+
     // Wait for dropdown to open
     await this.page.waitForTimeout(500);
-    
+
     // Select the option
     const option = this.page.locator(`[role="option"]:has-text("${category}")`);
     await this.click(option, `Category: ${category}`);
@@ -197,10 +196,10 @@ export class JobsPage extends BasePage {
   async enterLocation(location: string): Promise<void> {
     await this.waitForElement(this.locationInput);
     await this.fill(this.locationInput, location, 'Location Input');
-    
+
     // Wait for suggestions dropdown
     await this.page.waitForTimeout(500);
-    
+
     // Click first suggestion
     const firstSuggestion = this.page.locator('[role="option"]').first();
     if (await this.isVisible(firstSuggestion)) {

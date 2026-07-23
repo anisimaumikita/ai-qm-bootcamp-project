@@ -1,6 +1,6 @@
 /**
  * Scenario 1: Search for a Job
- * 
+ *
  * TEST CASE:
  * 1. Open the IKEA website
  * 2. Click on 'Jobs' tab
@@ -51,16 +51,14 @@ test.describe('Scenario 1: Search for a Job', () => {
     let hasResults = await jobsPage.hasSearchResults();
 
     if (!hasResults) {
-      logger.warn(
-        `No results found for '${searchKeyword}', attempting fallback search`
-      );
+      logger.warn(`No results found for '${searchKeyword}', attempting fallback search`);
       const fallbackKeyword = JOBS_SEARCH_PARAMS.FALLBACK_JOB_TITLE; // 'Designer'
       logger.info(`Searching for fallback keyword: ${fallbackKeyword}`);
-      
+
       // Go back and search again
       await jobsPage.goBack();
       await jobsPage.searchForJob(fallbackKeyword);
-      
+
       hasResults = await jobsPage.hasSearchResults();
       expect(hasResults).toBeTruthy();
       searchKeyword = fallbackKeyword;
@@ -77,9 +75,7 @@ test.describe('Scenario 1: Search for a Job', () => {
 
     // Step 8: Verify job title contains search keyword
     logger.info(`Step 8: Verifying job title contains '${searchKeyword}'`);
-    const jobTitleContainsKeyword = await jobDetailsPage.jobTitleContains(
-      searchKeyword
-    );
+    const jobTitleContainsKeyword = await jobDetailsPage.jobTitleContains(searchKeyword);
     expect(jobTitleContainsKeyword).toBeTruthy();
 
     // Step 9: Save the job
